@@ -1,0 +1,27 @@
+os: osx
+addons:
+  homebrew:
+    packages:
+    - sbcl
+script:
+- |
+  mkdir build && cd build && ../configure --with-x=no && make -j2 2>&1 | \
+      sed -n 's/.*\(")compile".*spad\).*/\1/p'
+- make > /dev/null 2>&1
+- make check -j2 2>&1 | sed -n 's/.*tee \(.*output\);.*/\1/p'
+- make check > /dev/null 2>&1
+- mkdir -p FriCAS.app/Contents/{MacOS,Resources}
+- make DESTDIR=./FriCAS.app/Contents/Resources install || true
+- cp ../contrib/macos/Info.plist ./FriCAS.app/Contents/Info.plist
+- cp ../contrib/macos/appIcon.icns ./FriCAS.app/Contents/Resources
+- cc -framework CoreFoundation ../contrib/macos/FriCAS.c -o ./FriCAS.app/Contents/MacOS/FriCAS
+- hdiutil create -srcfolder FriCAS.app FriCAS.dmg
+deploy:
+  provider: releases
+  api_key:
+    secure: dtFDd///aBqhCigDRgViZ0L3I/Vx35LyEQnZslypd5bTp0ETHRODBp0f3gfO15JlhmsF3/ZsgiV6Lk4bbZ6LcpIixWwPXlS80Xx436rdPyP7CGoRNAotoQYYs1Qluil14/xr44nD0ZbNov8/z8IqtBvg5W6/M+/USkHex6/JS8hd8/TriFX3dpRR2ripGb97nDA/Zaezk5pn6AgVW84uZNHvJy4Hlge6H78OxhkKJsi4x145g0fL6ynMZzbZJdD4xsbhfNfABLQRrLSj9PkBjHwugC7aOpJXt5rd8LipX+R906kRJIAUOgZjsG3QpLS/FAjQ+Py6iG6uGVv3tm7gqiBK3Pt/yBC6pyBI8QP3SfxQ182xtcVZlBrsMvIzF1wC2jb9Y6VIb71WHQYiRtLLiYmF1pdHGLLHEcawMSylo2uVuWAhl0pao97ypej5xtAhrQLK4vCTKBiBvysOiKdfg5gj122arjka//0VJwTIhVbZHyeNMAtk+VHEJyH8h+UNx1YUVAQtM3NZHwkKKpib+4O8VYolxaTXws95VHkad208px5iAgNiT4oJrJ74XGbi/pYqElC+FRG9xdHrvzV8mN/1+H2B/YGINMgLBq20ytm86XuqWBc4BTk9VkpIavBXjz354jKeFeAoEZ0mx6OyOmskLXrvaSil0M5kW5P3zyw=
+  file: FriCAS.dmg
+  skip_cleanup: true
+  on:
+    repo: oldk1331/fricas
+    branch: travis-osx

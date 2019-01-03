@@ -134,7 +134,7 @@ install-src:
                >> '${COMMAND}'.tmp
 	if test "$(fricas_lib)" != "$(libdir)" ;  then \
 	   echo \
-	      AXIOM='"$${exec_prefix}/$(fricas_lib)/fricas/target/$(target)"' \
+	      AXIOM='"`dirname $$0`/../$(fricas_lib)/fricas/target/$(target)"' \
 	       >> '${COMMAND}'.tmp ; \
 	else \
 	   echo AXIOM='"$(libdir)/fricas/target/$(target)"' \
